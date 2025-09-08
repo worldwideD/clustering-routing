@@ -36,6 +36,7 @@ examples/dolphin-config.h
 examples/ddos.cc
 examples/dolphin-config.cc
 examples/switch_mobility_test.cc
+examples/dolphin_scenario_*.cc
 examples/settings/multi_route_table
 examples/settings/**/settings_????_[0-9].json
 examples/settings/**/settings_????_[1-9][0-9].json
