@@ -1,0 +1,293 @@
+[1mdiff --git a/examples/dolphin_app_test.cc b/examples/dolphin_app_test.cc[m
+[1mindex d340a72..a999549 100755[m
+[1m--- a/examples/dolphin_app_test.cc[m
+[1m+++ b/examples/dolphin_app_test.cc[m
+[36m@@ -155,6 +155,55 @@[m [mMacLOSSTrace(Ptr<const Packet> packet, double time_now, AquaSimAddress address)[m
+ [m
+ /*  mac trace end */[m
+ [m
+[32m+[m[32m// net trace begin[m
+[32m+[m[32m//loss:0：未丢包；1：环路丢包；2:不是下一跳地址丢包；3：广播包传递次数过多丢包；4：广播风暴抑制丢包[m
+[32m+[m[32mvoid[m
+[32m+[m[32mNetTraceBase(TraceAction action,Ptr<const Packet> packet, double time_now, AquaSimAddress address,int loss)[m
+[32m+[m[32m{[m
+[32m+[m[32m    int packet_type;[m
+[32m+[m[32m    AquaSimHeader ash;[m
+[32m+[m[32m    packet->PeekHeader(ash);[m
+[32m+[m[32m    AquaSimAddress srcAddr = ash.GetSAddr();[m
+[32m+[m[32m    AquaSimAddress dstAddr = ash.GetDAddr();[m
+[32m+[m[32m    AquaSimAddress nxtAddr = ash.GetNextHop();[m
+[32m+[m[32m    packet_type = static_cast<int>(ash.GetNetDataType());[m
+[32m+[m
+[32m+[m[32m    macTxTraceFile << "src_id=" << " " << srcAddr.GetAsInt() << " "[m
+[32m+[m[32m                   << "nxt_id=" << " " << nxtAddr.GetAsInt() << " "[m
+[32m+[m[32m                   << "dst_id=" << " " << dstAddr.GetAsInt() << " "[m
+[32m+[m[32m                   << "node_id=" << " " << address.GetAsInt() << " "[m
+[32m+[m[32m                   << "layer=" << " " << "NET" << " "[m
+[32m+[m[32m                   << "packet_id=" << " " << packet->GetUid() << " "[m
+[32m+[m[32m                   << "packet_size=" << " " << packet->GetSize() << " "[m
+[32m+[m[32m                   << "packet_type=" << " " << packet_type << " "[m
+[32m+[m[32m                   << "action=" << " " << static_cast<int>(action) << " "[m
+[32m+[m[32m                   << "time_stamp=" << " " << time_now << " "[m
+[32m+[m[32m                   << "LossReason=" << " " << loss << std::endl;[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid[m
+[32m+[m[32mNetTxTrace(Ptr<const Packet> packet, double time_now, AquaSimAddress address,int up0down1)[m
+[32m+[m[32m{[m
+[32m+[m[32m    if(up0down1==0)[m
+[32m+[m[32m    NetTraceBase(TraceAction::TXToDown, packet, time_now, address,0);[m
+[32m+[m[32m    else if(up0down1==1)[m
+[32m+[m[32m    NetTraceBase(TraceAction::TXToUP, packet, time_now, address,0);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32mvoid[m
+[32m+[m[32mNetRxTrace(Ptr<const Packet> packet, double time_now, AquaSimAddress address,int loss)[m
+[32m+[m[32m{[m
+[32m+[m[32m    AquaSimHeader ash;[m
+[32m+[m[32m    packet->PeekHeader(ash);[m
+[32m+[m
+[32m+[m[32m    if(ash.GetDirection()==AquaSimHeader::DOWN)[m
+[32m+[m[32m    NetTraceBase(TraceAction::RXFromUP, packet, time_now, address,loss);[m
+[32m+[m[32m    else if(ash.GetDirection()==AquaSimHeader::UP)[m
+[32m+[m[32m    NetTraceBase(TraceAction::RXFromDown, packet, time_now, address,loss);[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m// net trace end[m
+[32m+[m
+ /*  app trace begin */[m
+ [m
+ void[m
+[36m@@ -565,7 +614,7 @@[m [msetMobility(int node_num, NodeContainer nodesCon, json settings)[m
+ int[m
+ main(int argc, char* argv[])[m
+ {[m
+[31m-    std::string m_setting_path = "./settings.json";[m
+[32m+[m[32m    std::string m_setting_path = "/home/sl/ns-allinone-3.40/ns-3.40/src/aqua-sim-ng/examples/settings/settings.json";[m
+     CommandLine cmd;[m
+     cmd.AddValue("setting", "Setting file path", m_setting_path);[m
+     cmd.Parse(argc, argv);[m
+[36m@@ -714,9 +763,15 @@[m [mmain(int argc, char* argv[])[m
+                                   MakeCallback(&MacRxTrace));[m
+     Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::NetDevice/Mac/MactdmaLOSS",[m
+                                   MakeCallback(&MacLOSSTrace));[m
+[32m+[m
+     Config::ConnectWithoutContext("/NodeList/*/ApplicationList/*/$ns3::Application/Tx",[m
+                                   MakeCallback(&AppTxTrace));[m
+ [m
+[32m+[m[32m    Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::NetDevice/Routing/optimizedTx",[m
+[32m+[m[32m                                  MakeCallback(&NetTxTrace));[m
+[32m+[m[32m    Config::ConnectWithoutContext("/NodeList/*/DeviceList/*/$ns3::NetDevice/Routing/optimizedRx",[m
+[32m+[m[32m                                  MakeCallback(&NetRxTrace));[m
+[32m+[m
+     Packet::EnablePrinting(); // for debugging purposes[m
+     std::cout << "-----------Running Simulation-----------\n";[m
+     Simulator::Stop(Seconds(simStop + 30));[m
+[1mdiff --git a/examples/settings/settings.json b/examples/settings/settings.json[m
+[1mindex 7f47913..e7551de 100644[m
+[1m--- a/examples/settings/settings.json[m
+[1m+++ b/examples/settings/settings.json[m
+[36m@@ -165,7 +165,7 @@[m
+     ],[m
+     "//": "网络层配置项",[m
+     "//": "设置路由表路径",[m
+[31m-    "MultiRouteTableFile": "/home/sl/ns-allinone-3.40/ns-3.40/src/aqua-sim-ng/multi_route_table",[m
+[32m+[m[32m    "MultiRouteTableFile": "/home/sl/ns-allinone-3.40/ns-3.40/multi_route_table",[m
+     "//": "广播包的最大传播次数",[m
+     "max_forwards": 5,[m
+     "//": "s",[m
+[36m@@ -178,4 +178,4 @@[m
+     "leader_command_time": 10,[m
+     "node_num": 10,[m
+     "leader_id": 3[m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m}[m
+[1mdiff --git a/model/aqua-sim-header-mac.h b/model/aqua-sim-header-mac.h[m
+[1mindex af864ad..ad883e8 100755[m
+[1m--- a/model/aqua-sim-header-mac.h[m
+[1m+++ b/model/aqua-sim-header-mac.h[m
+[36m@@ -31,7 +31,7 @@[m
+ #include "aqua-sim-address.h"[m
+ //#include "aqua-sim-routing-buffer.h"[m
+ #include "aqua-sim-datastructure.h"[m
+[31m-[m
+[32m+[m[32m#include <map>[m
+ namespace ns3 {[m
+ [m
+ /**[m
+[1mdiff --git a/model/aqua-sim-routing-optimizedstatic.cc b/model/aqua-sim-routing-optimizedstatic.cc[m
+[1mindex fbe13b8..91c013a 100755[m
+[1m--- a/model/aqua-sim-routing-optimizedstatic.cc[m
+[1m+++ b/model/aqua-sim-routing-optimizedstatic.cc[m
+[36m@@ -70,6 +70,12 @@[m [mAquaSimOptimizedStaticRouting::GetTypeId()[m
+       IntegerValue(5),[m
+       MakeIntegerAccessor(&AquaSimOptimizedStaticRouting::m_maxForward),[m
+       MakeIntegerChecker<int>()) [m
+[32m+[m[32m    .AddTraceSource("optimizedTx","Net:A new packet is sent",[m
+[32m+[m[32m      MakeTraceSourceAccessor(&AquaSimOptimizedStaticRouting::m_txTrace),[m
+[32m+[m[32m                            "AquaSimOptimizedStaticRouting::TxCallback")[m
+[32m+[m[32m    .AddTraceSource("optimizedRx","Net:A new packet is received",[m
+[32m+[m[32m      MakeTraceSourceAccessor(&AquaSimOptimizedStaticRouting::m_rxTrace),[m
+[32m+[m[32m                            "AquaSimOptimizedStaticRouting::TxCallback")[m
+   ;[m
+   return tid;[m
+ }[m
+[36m@@ -143,6 +149,7 @@[m [mAquaSimOptimizedStaticRouting::Recv (Ptr<Packet> p, const Address &dest, uint16_[m
+     hashTable.CheckNeighborTimeout(AquaSimAddress::ConvertFrom(m_device->GetAddress()).GetAsInt());[m
+     packet_table.CheckBroadcastpktTimeout(AquaSimAddress::ConvertFrom(m_device->GetAddress()).GetAsInt());[m
+   }[m
+[32m+[m[41m  [m
+ [m
+   AquaSimAddress next_hop = FindNextHop (p);[m
+   //next_hop = AquaSimAddress::GetBroadcast();[m
+[36m@@ -160,12 +167,14 @@[m [mAquaSimOptimizedStaticRouting::Recv (Ptr<Packet> p, const Address &dest, uint16_[m
+     {[m
+       NS_LOG_UNCOND("a location broadcast packet,put in hash");[m
+       hashTable.PutInHash(p,AquaSimAddress::ConvertFrom(m_device->GetAddress()).GetAsInt());[m
+[32m+[m[32m      m_rxTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),0);[m
+       return true;[m
+     }[m
+   //NS_LOG_UNCOND("not broadcast packet");[m
+   if (IsDeadLoop (p))[m
+     {[m
+       NS_LOG_UNCOND("Dropping packet " << p << " due to route loop");[m
+[32m+[m[32m      m_rxTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),1);[m
+       //drop(p, DROP_RTR_ROUTE_LOOP);[m
+       p = 0;[m
+       return false;[m
+[36m@@ -185,13 +194,14 @@[m [mAquaSimOptimizedStaticRouting::Recv (Ptr<Packet> p, const Address &dest, uint16_[m
+ 		}[m
+   else if (!((ash.GetNextHop().GetAsInt()==AquaSimAddress::ConvertFrom(m_device->GetAddress()).GetAsInt())||(next_hop == AquaSimAddress::GetBroadcast())))[m
+     {[m
+[32m+[m[32m      m_rxTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),2);[m
+       //NS_LOG_UNCOND("Next H.: " << ash.GetNextHop().GetAsInt());[m
+       NS_LOG_UNCOND("Node("<<AquaSimAddress::ConvertFrom(m_device->GetAddress()).GetAsInt()<<") Dropping packet " << p << " due to duplicate");[m
+       //drop(p, DROP_MAC_DUPLICATE);[m
+       p = 0;[m
+       return false;[m
+     }[m
+[31m-[m
+[32m+[m[32m  m_rxTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),0);[m
+   //increase the number of forwards[m
+   [m
+   uint8_t numForwards = ash.GetNumForwards () + 1;[m
+[36m@@ -202,6 +212,7 @@[m [mAquaSimOptimizedStaticRouting::Recv (Ptr<Packet> p, const Address &dest, uint16_[m
+ [m
+   if (AmIDst (p))[m
+     {[m
+[32m+[m[32m      m_txTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),0);[m
+       NS_LOG_UNCOND("I am destination. Sending up.");[m
+       SendUp (p);[m
+       return true;[m
+[36m@@ -212,6 +223,7 @@[m [mAquaSimOptimizedStaticRouting::Recv (Ptr<Packet> p, const Address &dest, uint16_[m
+   if (next_hop != AquaSimAddress::GetBroadcast ())[m
+     {[m
+       //send to mac[m
+[32m+[m[32m      m_txTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),1);[m
+       NS_LOG_UNCOND("find the next hop: Node("<<next_hop.GetAsInt()<<"), send to mac");[m
+       SendDown (p, next_hop, Seconds (0.0));[m
+       return true;[m
+[36m@@ -223,16 +235,20 @@[m [mAquaSimOptimizedStaticRouting::Recv (Ptr<Packet> p, const Address &dest, uint16_[m
+       {[m
+         if(ash.GetNumForwards()>MaxForwards)[m
+         {[m
+[32m+[m[32m          m_rxTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),3);[m
+           NS_LOG_INFO("Dropping packet " << p << " due to too many numforwards");[m
+           return false;[m
+         }[m
+         NS_LOG_UNCOND("a broadcast packet. Sending up and down.");[m
+[32m+[m[32m        m_txTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),0);[m
+[32m+[m[32m        m_txTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),1);[m
+           Ptr<Packet> cpkt = p->Copy();[m
+           SendUp(cpkt);[m
+           SendDown (p, next_hop, Seconds (0.0));[m
+           return true;[m
+       }[m
+       else{[m
+[32m+[m[32m        m_rxTrace(p,Simulator::Now().GetSeconds(),AquaSimAddress::ConvertFrom(m_device->GetAddress()),4);[m
+         NS_LOG_INFO("Dropping packet " << p << " due to Broadcast Storm");[m
+         p=0;[m
+         return false;[m
+[36m@@ -443,7 +459,7 @@[m [mAquaSimGPSRHashTable::PutInHash(Ptr<Packet> p,int my_node)[m
+     else if((hashPtr->alive[i]==-1))[m
+     {[m
+       //在初始邻居表里的邻居[m
+[31m-        NS_LOG_UNCOND("Node("<<my_node<<") find initial neighbor node(" << src.GetAsInt()<<") at "<<Simulator::Now());[m
+[32m+[m[32m        NS_LOG_UNCOND("Node("<<my_node<<") find initial neighbor node(" << src.GetAsInt()<<") at "<<Simulator::Now().GetSeconds());[m
+         hashPtr->neighbor_position[i]=nowposition;[m
+         hashPtr->t_now[i]=Simulator::Now();[m
+         hashPtr->alive[i]=1;[m
+[36m@@ -451,16 +467,16 @@[m [mAquaSimGPSRHashTable::PutInHash(Ptr<Packet> p,int my_node)[m
+         hashPtr->initial_num--;[m
+         if(hashPtr->initial_num==0)[m
+         {[m
+[31m-          NS_LOG_UNCOND("!!!Node("<<my_node<<") find all initial neighbors at "<<Simulator::Now());[m
+[32m+[m[32m          NS_LOG_UNCOND("!!!Node("<<my_node<<") find all initial neighbors at "<<Simulator::Now().GetSeconds());[m
+           Finish_Initial_Network--;[m
+           if(Finish_Initial_Network==0)[m
+[31m-          NS_LOG_UNCOND("!!!!!!all nodes find their initial neighbors at "<<Simulator::Now());[m
+[32m+[m[32m          NS_LOG_UNCOND("!!!!!!all nodes find their initial neighbors at "<<Simulator::Now().GetSeconds());[m
+         }[m
+         neighbor_table[my_node]=hashPtr;[m
+     }[m
+     else//有新邻居[m
+       {[m
+[31m-        NS_LOG_UNCOND("Node("<<my_node<<") find new neighbor node(" << src.GetAsInt()<<") at "<<Simulator::Now());[m
+[32m+[m[32m        NS_LOG_UNCOND("Node("<<my_node<<") find new neighbor node(" << src.GetAsInt()<<") at "<<Simulator::Now().GetSeconds());[m
+         hashPtr->neighbor_position[i]=nowposition;[m
+         hashPtr->t_now[i]=Simulator::Now();[m
+         hashPtr->alive[i]=1;[m
+[36m@@ -472,7 +488,7 @@[m [mAquaSimGPSRHashTable::PutInHash(Ptr<Packet> p,int my_node)[m
+ [m
+ void AquaSimGPSRHashTable::CheckNeighborTimeout(int my_node)[m
+ {[m
+[31m-    //NS_LOG_UNCOND("Begin DeleteNeighbor at "<<Simulator::Now());[m
+[32m+[m[32m    //NS_LOG_UNCOND("Begin DeleteNeighbor at "<<Simulator::Now().GetSeconds());[m
+     Time time_out = Seconds(5.0); // 超时时间设定, 为2~3个时隙[m
+     Time time_slot = Seconds(2.0); // 设置探测时间间隔, 为1个时隙左右[m
+     time_out = Time::FromDouble(m_neighbor_t_out, Time::S);[m
+[36m@@ -496,7 +512,7 @@[m [mvoid AquaSimGPSRHashTable::CheckNeighborTimeout(int my_node)[m
+         if(update==1)   NS_LOG_UNCOND("Node("<<my_node<<") has "<<neighborhood->neighbor_num<<" neighbors after updating");[m
+   [m
+         neighbor_table[my_node]=neighborhood;[m
+[31m-    //NS_LOG_UNCOND("Finished deleting hash at "<<Simulator::Now());[m
+[32m+[m[32m    //NS_LOG_UNCOND("Finished deleting hash at "<<Simulator::Now().GetSeconds());[m
+ [m
+      Simulator::Schedule(time_slot, &AquaSimGPSRHashTable::CheckNeighborTimeout, this,my_node);[m
+ }[m
+[36m@@ -615,7 +631,7 @@[m [mAquaSimGPSRPktTable::PutInPkt(Ptr<Packet> p,int my_node)[m
+ void[m
+ AquaSimGPSRPktTable::CheckBroadcastpktTimeout(int my_node)[m
+ {[m
+[31m-    //NS_LOG_UNCOND("Begin CheckBroadcastpktTimeout at " << Simulator::Now());[m
+[32m+[m[32m    //NS_LOG_UNCOND("Begin CheckBroadcastpktTimeout at " << Simulator::Now().GetSeconds());[m
+     Time time_out = Seconds(10.0); // 超时时间设定,为2~3个时隙[m
+     Time time_slot = Seconds(5.0); // 设置探测时间间隔,为1个时隙左右[m
+     time_out = Time::FromDouble(m_pkt_t_out, Time::S);[m
+[1mdiff --git a/model/aqua-sim-routing-optimizedstatic.h b/model/aqua-sim-routing-optimizedstatic.h[m
+[1mindex cfafb0d..befa5d7 100755[m
+[1m--- a/model/aqua-sim-routing-optimizedstatic.h[m
+[1m+++ b/model/aqua-sim-routing-optimizedstatic.h[m
+[36m@@ -140,6 +140,8 @@[m [mpublic:[m
+ [m
+   int m_maxForward;[m
+ [m
+[32m+[m[32m  TracedCallback<Ptr<const Packet>,double,AquaSimAddress,int> m_txTrace;[m
+[32m+[m[32m  TracedCallback<Ptr<const Packet>,double,AquaSimAddress,int> m_rxTrace;[m
+ [m
+ protected:[m
+ [m
+[1mdiff --git a/model/dolphin_trace.h b/model/dolphin_trace.h[m
+[1mindex 4a0a5ed..c50c052 100644[m
+[1m--- a/model/dolphin_trace.h[m
+[1m+++ b/model/dolphin_trace.h[m
+[36m@@ -6,7 +6,7 @@[m [menum class TracePacketType[m
+     TASK = 1,[m
+     ACK,[m
+     DATA,[m
+[31m-    ND[m
+[32m+[m[32m    ND//Neighbor Detect[m
+ };[m
+ [m
+ enum class TraceAction[m

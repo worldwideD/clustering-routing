@@ -1,0 +1,223 @@
+{
+    "common": {
+        "lossRate": {
+            "0.05": {
+                "initialNetworkingCompletion": 550,
+                "packet_num": 5
+            },
+            "0.10": {
+                "initialNetworkingCompletion": 600,
+                "packet_num": 5
+            },
+            "0.15": {
+                "initialNetworkingCompletion": 650,
+                "packet_num": 10
+            },
+            "0.20": {
+                "initialNetworkingCompletion": 700,
+                "packet_num": 10
+            },
+            "0.25": {
+                "initialNetworkingCompletion": 750,
+                "packet_num": 10
+            },
+            "0.30": {
+                "initialNetworkingCompletion": 800,
+                "packet_num": 10
+            },
+            "0.35": {
+                "initialNetworkingCompletion": 1000,
+                "packet_num": 20
+            },
+            "0.40": {
+                "initialNetworkingCompletion": 1200,
+                "packet_num": 20
+            },
+            "0.45": {
+                "initialNetworkingCompletion": 1400,
+                "packet_num": 20
+            },
+            "0.50": {
+                "initialNetworkingCompletion": 1600,
+                "packet_num": 30
+            },
+            "0.60": {
+                "initialNetworkingCompletion": 2000,
+                "packet_num": 30
+            },
+            "0.70": {
+                "initialNetworkingCompletion": 2400,
+                "packet_num": 30
+            },
+            "0.80": {
+                "initialNetworkingCompletion": 4000,
+                "packet_num": 30
+            },
+            "0.90": {
+                "initialNetworkingCompletion": 10000,
+                "packet_num": 30
+            }
+        }
+    },
+    "traceFile": "./tracelog-clustering/-1/trace.txt",
+    "phyTraceFile": "./tracelog-clustering/-1/phyTrace.txt",
+    "initialNetworkingCompletion": 100,
+    "simulation_time": 10000,
+    "deployNodesInterval": 0,
+    "node_num": 20,
+    "leader_id": 3,
+    "frequency": 25.0,
+    "relRange": 2000,
+    "maxRange": 2000,
+    "txRange": 180,
+    "rxRange": 180,
+    "RxThresh": 0.1,
+    "CPThresh": 10.0,
+    "lossRate": 0.0,
+    "short_range": 1000,
+    "long_range": 2000,
+    "movable_rate": 0,
+    "node_positions": [
+        [0, 0, 0],
+        [200, 200, 0],
+        [400, 400, 0],
+        [600, 600, 0],
+        [800, 800, 0],
+        [1000, 1000, 0],
+        [1200, 1200, 0],
+        [1400, 1400, 0],
+        [1600, 1600, 0],
+        [1800, 1800, 0],
+        [100, 100, 0],
+        [300, 300, 0],
+        [500, 500, 0],
+        [700, 700, 0],
+        [900, 900, 0],
+        [1100, 1100, 0],
+        [1300, 1300, 0],
+        [1500, 1500, 0],
+        [1700, 1700, 0],
+        [1900, 1900, 0]
+    ],
+    "mobility_model_config": 3,
+    "mobility_models_batch": [
+        {
+            "model": "ns3::DolphinMobilityRandomWayPoint",
+            "params": {
+                "length": 100000,
+                "speed": [1, 3],
+                "pause": 0,
+                "X": [0, 3000],
+                "Y": [0, 3000],
+                "Z": [0, 2000]
+            }
+        }
+    ],
+    "position_error_config": 2,
+    "position_error_batch": [
+        0,
+        0
+    ],
+    "location_error_config": 2,
+    "location_error_batch": [
+        0,
+        0
+    ],
+    "speed_direction_error_config": 2,
+    "speed_direction_error_batch": 0,
+    "speed_direction_error_update": 0,
+    "speed_error_config": 2,
+    "speed_error_batch": 0.00,
+    "speed_error_update": 0,
+    "tdma_slot_duration": 0.5,
+    "tdma_guard_time": 1.5,
+    "data_max_length": 640.0,
+    "TdmaSlotNum": 20,
+    "data_packet_size": 100,
+    "loc_packet_size": 20,
+    "SlotNumTable": [
+        1,
+        2,
+        3,
+        4,
+        5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
+    ],
+    "time_slots": [
+        [
+            1
+        ],
+        [
+            2
+        ],
+        [
+            3
+        ],
+        [
+            4
+        ],
+        [
+            5
+        ],
+        [
+            6
+        ],
+        [
+            7
+        ],
+        [
+            8
+        ],
+        [
+            9
+        ],
+        [
+            10
+        ],
+        [
+            11
+        ],
+        [
+            12
+        ],
+        [
+            13
+        ],
+        [
+            14
+        ],
+        [
+            15
+        ],
+        [
+            16
+        ],
+        [
+            17
+        ],
+        [
+            18
+        ],
+        [
+            19
+        ],
+        [
+            20
+        ]
+    ],
+    "routing_protocol": "ns3::DolphinRoutingClustering",
+    "hello_interval": 100,
+    "omega": [0.4, 0.3, 0.3],
+    "gamma": [0.5, 0.5],
+    "delta": [0.5, 0.5],
+    "alpha": 200,
+    "mu": 0.5,
+    "lambda": 0.5,
+    "prob": 0.75,
+    "max_speed": 3,
+    "forming_time": 20,
+    "routing_time": 50,
+    "longNodes_rate": 0.5,
+    "packet_num": 100,
+    "packet_size": 20,
+    "data_rate_bps": 16
+}

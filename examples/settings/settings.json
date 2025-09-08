@@ -1,0 +1,191 @@
+{
+    "//": "tracefile路径",
+    "traceFile": "./trace.txt",
+    "//": "初始组网完成时间T_N(秒)",
+    "initialNetworkingCompletion": 36000,
+    "//": "信道及物理层配置项",
+    "frequency": 25.0,
+    "relRange": 3000.0,
+    "maxRange": 9000.0,
+    "CPThresh": 10.0,
+    "CSThresh": 0.0,
+    "lossRate": 0.15,
+    "//": "运动模型配置项",
+    "node_positions": [
+        [
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            -3,
+            0
+        ],
+        [
+            1.3,
+            0.75,
+            0
+        ],
+        [
+            1.3,
+            -2.25,
+            0
+        ],
+        [
+            1.3,
+            -5.25,
+            0
+        ],
+        [
+            0,
+            3,
+            0
+        ],
+        [
+            0,
+            -6,
+            0
+        ],
+        [
+            -1.3,
+            2.25,
+            0
+        ],
+        [
+            -1.3,
+            -3.75,
+            0
+        ],
+        [
+            -1.3,
+            -0.75,
+            0
+        ]
+    ],
+    "mobility_model_config": 2,
+    "mobility_models_individual": [
+        {
+            "node_id": 1,
+            "models": [
+                {
+                    "model": "ns3::DolphinMobilityConstantVelocity",
+                    "params": {
+                        "start_time": 10,
+                        "length": 10,
+                        "speed": [
+                            1,
+                            0,
+                            0
+                        ]
+                    }
+                }
+            ]
+        }
+    ],
+    "mobility_models_batch": [
+        {
+            "model": "ns3::DolphinMobilityConstantVelocity",
+            "params": {
+                "start_time": 10,
+                "length": 10,
+                "speed": [
+                    1,
+                    0,
+                    0
+                ]
+            }
+        }
+    ],
+    "initial_position_error_config": 2,
+    "initial_position_error_individual": [
+        {
+            "node_id": 0,
+            "error": 0.01
+        },
+        {
+            "node_id": 1,
+            "error": 0.02
+        },
+        {
+            "node_id": 2,
+            "error": 0.03
+        },
+        {
+            "node_id": 3,
+            "error": 0.04
+        },
+        {
+            "node_id": 4,
+            "error": 0.05
+        },
+        {
+            "node_id": 5,
+            "error": 0.05
+        },
+        {
+            "node_id": 6,
+            "error": 0.04
+        },
+        {
+            "node_id": 7,
+            "error": 0.04
+        },
+        {
+            "node_id": 8,
+            "error": 0.03
+        },
+        {
+            "node_id": 9,
+            "error": 0.02
+        }
+    ],
+    "initial_position_error_batch": 0.05,
+    "speed_direction_error_config": 2,
+    "speed_direction_error_batch": 0.05,
+    "speed_direction_error_update": 2,
+    "speed_error_config": 2,
+    "speed_error_batch": 0.05,
+    "speed_error_update": 3,
+    "//": "MAC层配置项",
+    "//": "节点时隙配置顺序",
+    "tdma_slot_duration": 0.9,
+    "tdma_guard_time": 0.8,
+    "data_max_length": 700,
+    "TdmaSlotNum": 25,
+    "data_packet_size":20,
+    "loc_packet_size":9,
+    "SlotNumTable": [
+        5,
+        6,
+        1,
+        2,
+        3,
+        8,
+        4,
+        7,
+        0,
+        9
+    ],
+    "//": "网络层配置项",
+    "//": "设置路由表路径",
+    "MultiRouteTableFile": "/home/sl/ns-allinone-3.40/ns-3.40/src/aqua-sim-ng/multi_route_table",
+    "//": "广播包的最大传播次数",
+    "max_forwards": 5,
+    "//": "s",
+    "neighbor_time_out": 10,
+    "neighbor_time_interval": 5,
+    "packet_time_out": 10,
+    "packet_time_interval": 5,
+    "//": "应用层配置项",
+    "//": "应用层领航节点开始发送广播时间(秒)",
+    "leader_command_start": 50,
+    "//": "应用层领航节点发送广播间隔时间(秒)",
+    "leader_command_time": 50,
+    "//": "应用层领航节点发送广播的最大次数",
+    "leader_command_loop": 2,
+    "//": "主程序配置项",
+    "simulation_time": 50,
+    "node_num": 10,
+    "leader_id": 3
+}
